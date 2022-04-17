@@ -53,38 +53,58 @@ client.connect((err) => {
 	});
 });
 
-// !Stripe initialization
+// !Stripe initialization on preBuilt method
+// const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
+//
+// app.post("/addToCart", async (req, res) => {
+// 	try {
+// 		const plan = req.body.plan;
+// 		const priceInCent = req.body.price * 100;
+// 		const quantity = req.body.quantity;
+// 		const session = await stripe.checkout.sessions.create({
+// 			payment_method_types: ["card"],
+// 			mode: "payment",
+//
+// 			line_items: [
+// 				{
+// 					price_data: {
+// 						currency: "usd",
+// 						product_data: {
+// 							name: plan,
+// 						},
+// 						unit_amount: priceInCent,
+// 					},
+// 					quantity: quantity,
+// 				},
+// 			],
+//
+// 			success_url: `${process.env.CLIENT_URL}/aboutUs`,
+// 			cancel_url: `${process.env.CLIENT_URL}/pricing`,
+// 		});
+// 		res.json({ url: session.url });
+// 	} catch (error) {
+// 		res.status(500).send(error.message);
+// 	}
+// });
+
+// !Stripe initialization on custom method
 const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
 
-app.post("/addToCart", async (req, res) => {
-	try {
-		const plan = req.body.plan;
-		const priceInCent = req.body.price * 100;
-		const quantity = req.body.quantity;
-		const session = await stripe.checkout.sessions.create({
-			payment_method_types: ["card"],
-			mode: "payment",
+app.post("/create-payment-intent", async (req, res) => {
+	const priceInnCent = req.body.price * 100;
 
-			line_items: [
-				{
-					price_data: {
-						currency: "usd",
-						product_data: {
-							name: plan,
-						},
-						unit_amount: priceInCent,
-					},
-					quantity: quantity,
-				},
-			],
+	// Create a PaymentIntent with the order amount and currency
+	const paymentIntent = await stripe.paymentIntents.create({
+		amount: priceInnCent,
+		currency: "usd",
+		automatic_payment_methods: {
+			enabled: true,
+		},
+	});
 
-			success_url: `${process.env.CLIENT_URL}/aboutUs`,
-			cancel_url: `${process.env.CLIENT_URL}/pricing`,
-		});
-		res.json({ url: session.url });
-	} catch (error) {
-		res.status(500).send(error.message);
-	}
+	res.send({
+		clientSecret: paymentIntent.client_secret,
+	});
 });
 
 app.listen(process.env.PORT || port);
