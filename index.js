@@ -31,26 +31,61 @@ const client = new MongoClient(uri, {
 });
 // Connecting website with mongoDB
 client.connect((err) => {
+	// Database Collection declaration
 	const membershipCollection = client
 		.db("PowerXGymDB")
 		.collection("GymMembership");
 	// perform actions on the collection object
-	app.post("/addMembers", (req, res) => {
-		// Receiving user info from client
-		const userData = req.body;
 
-		// sending data to database collection
+	// create new membership
+	app.post(`/createMembership`, (req, res) => {
+		const user = req.body;
 		membershipCollection
-			.insertOne(userData)
-			.then((result) => {
+			.insertOne(user)
+			.then(function (result) {
 				// process result
-
 				res.send(result.acknowledged);
 			})
 			.catch((err) => {
 				console.log(err);
 			});
 	});
+
+	app.get(`/user/:userMail`, (req, res) => {
+		const Email = req.params.userMail;
+
+		membershipCollection
+			.find({ email: Email })
+			.toArray((err, documents) => {
+				res.send(documents[0]);
+			});
+	});
+
+	app.patch(`/update/:userMail`, (req, res) => {
+		const userInfo = req.body;
+		console.log(userInfo);
+		membershipCollection
+			.updateOne({}, { $set: { userInfo } })
+			.then((result) => console.log(result))
+			.catch((err) => console.log(err.messages));
+	});
+
+	// 	app.post("/addMembers", (req, res) => {
+	// 		// Receiving user info from client
+	// 		const userData = req.body;
+	//
+	// 		// sending data to database collection
+	// 		membershipCollection
+	// 			.insertOne(userData)
+	// 			.then((result) => {
+	// 				// process result
+	//
+	// 				res.send(result.acknowledged);
+	// 			})
+	// 			.catch((err) => {
+	// 				console.log(err);
+	// 			});
+	// 	});
 });
 
 // !Stripe initialization on preBuilt method
