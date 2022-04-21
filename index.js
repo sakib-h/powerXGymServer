@@ -51,6 +51,7 @@ client.connect((err) => {
 			});
 	});
 
+	// get user info from data base
 	app.get(`/user/:userMail`, (req, res) => {
 		const Email = req.params.userMail;
 
@@ -61,12 +62,13 @@ client.connect((err) => {
 			});
 	});
 
+	// update user info to database
 	app.patch(`/update/:userMail`, (req, res) => {
 		const userInfo = req.body;
 		console.log(userInfo);
 		membershipCollection
 			.updateOne({}, { $set: { userInfo } })
-			.then((result) => console.log(result))
+			.then((result) => res.send(result.acknowledged))
 			.catch((err) => console.log(err.messages));
 	});
 
