@@ -51,7 +51,14 @@ client.connect((err) => {
 			});
 	});
 
-	// get user info from data base
+	// get all the members from Database
+	app.get(`/members`, (req, res) => {
+		membershipCollection.find({}).toArray((err, documents) => {
+			res.send(documents);
+		});
+	});
+
+	// get specific user info from data base
 	app.get(`/user/:userMail`, (req, res) => {
 		const Email = req.params.userMail;
 
@@ -67,27 +74,10 @@ client.connect((err) => {
 		const userInfo = req.body;
 		console.log(userInfo);
 		membershipCollection
-			.updateOne({}, { $set: { userInfo } })
+			.updateOne({}, { $set: userInfo })
 			.then((result) => res.send(result.acknowledged))
 			.catch((err) => console.log(err.messages));
 	});
-
-	// 	app.post("/addMembers", (req, res) => {
-	// 		// Receiving user info from client
-	// 		const userData = req.body;
-	//
-	// 		// sending data to database collection
-	// 		membershipCollection
-	// 			.insertOne(userData)
-	// 			.then((result) => {
-	// 				// process result
-	//
-	// 				res.send(result.acknowledged);
-	// 			})
-	// 			.catch((err) => {
-	// 				console.log(err);
-	// 			});
-	// 	});
 });
 
 // !Stripe initialization on preBuilt method
