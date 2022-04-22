@@ -74,7 +74,7 @@ client.connect((err) => {
 		const userInfo = req.body;
 		console.log(userInfo);
 		membershipCollection
-			.updateOne({}, { $set: userInfo })
+			.updateOne({ email: req.params.userMail }, { $set: userInfo })
 			.then((result) => res.send(result.acknowledged))
 			.catch((err) => console.log(err.messages));
 	});
